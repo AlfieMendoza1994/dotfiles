@@ -1,0 +1,5 @@
+--ignore-directory=is:public
+--ignore-directory=is:node_modules
+--ignore-directory=is:tmp
+--type-set=sass:ext:scss,sass
+--type-set=markdown:ext:md,markdown
