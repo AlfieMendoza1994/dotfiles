@@ -1,11 +1,12 @@
 # Path to your oh-my-zsh installation.
-export ZSH=/Users/adsi04/.oh-my-zsh
+export ZSH=/Users/alfie.mendoza/.oh-my-zsh
 
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
-ZSH_THEME="robbyrussell"
+# ZSH_THEME="robbyrussell"
+ZSH_THEME="ys"
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
 
@@ -73,10 +74,10 @@ source $ZSH/oh-my-zsh.sh
 # ssh
 # export SSH_KEY_PATH="~/.ssh/dsa_id"
 
-export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
 export PATH="$HOME/.pyenv/shims:$PATH" #Add pyenv to PATH for scripting
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -90,10 +91,24 @@ alias postgre_start='pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgre
 alias postgre_stop='pg_ctl -D /usr/local/var/postgres stop -s -m fast'
 alias tm='tmux attach || tmux new'
 alias ctags="`brew --prefix`/bin/ctags"
+alias spec=spec_runner
+
+# Custom Function
+spec_runner() {
+  bundle exec rspec $*; terminal-notifier -message "RSpec has Finished" -title "RSpec"
+}
 
 # direnv setting
 eval "$(direnv hook zsh)"
 
-# custom zsh-git-prompt
-source "$HOME/.custom-terminal-changes/.zsh-custom-prompt.sh"
+# custom zsh-git-prompt based on bira theme
+# source "$HOME/custom-terminal-settings/.zsh-custom-prompt.sh"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export PATH="/usr/local/opt/qt@5.5/bin:$PATH"
+export PATH="$PATH:/usr/local/mysql/bin"
+
+# Add Elixir to PATH
+export PATH="$PATH:/usr/local/Cellar/elixir/1.7.3/bin"
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
