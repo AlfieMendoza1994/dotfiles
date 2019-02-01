@@ -10,6 +10,7 @@ set ignorecase
 set showmatch
 set ruler  " Always show cursor position
 set number " Show line numbers on the sidebar
+set relativenumber " Display line numbers relative to current line
 set showcmd
 set incsearch  " Incremental search that shows partial matches
 set expandtab  " Convert tabs to spaces
@@ -28,17 +29,32 @@ set list  " Displays whitespace
 set hlsearch  " Enable search higlighting
 set updatetime=250  " I overrode default (4000) for vim-gitgutter diff markers
 set signcolumn=yes  " Displays signcolumn
+set background=dark " Vim will use colors that look good on dark background
 hi Search cterm=NONE gui=NONE ctermbg=darkgreen ctermfg=white guibg=#6666ff guifg=white
 hi CursorLine term=underline cterm=NONE gui=NONE ctermbg=darkyellow guibg=#996300
 
 if (has("nvim"))
-  set background=dark
   set termguicolors
 endif
 
 syntax enable  " Enable syntax highlighting
 
 " Plugin Addon Settings
+
+" ALE
+let g:ale_lint_on_text_changed = 'never'
+let g:ale_lint_on_enter = 0
+let g:ale_sign_column_always = 1
+let g:ale_echo_msg_format = '[%linter% - %severity%] %s'
+let g:ale_sign_error = '✘'
+let g:ale_sign_warning = '⚠'
+let g:ale_linters = {
+\  'javascript': ['eslint'],
+\  'jsx': ['eslint'],
+\  'ruby': ['rubocop'],
+\ }
+highlight ALEErrorSign ctermfg=9 guifg=#C30500
+highlight ALEWarningSign ctermfg=11 guifg=#FFB316
 
 " Nerdtree
 let NERDTreeShowHidden=1
@@ -99,44 +115,39 @@ call vundle#begin()
   Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
   Plugin 'ryanoasis/vim-devicons'
   Plugin 'Yggdroot/indentLine'
+  Plugin 'w0rp/ale'
 call vundle#end()
 
 filetype plugin indent on
-
-" Auto Commands
-au BufNewFile,BufRead *.py set tabstop=4 softtabstop=4 shiftwidth=4 expandtab fileformat=unix
-au BufNewFile,BufRead *.scss,*.rb,*.js,*.jsx set tabstop=2 softtabstop=2 shiftwidth=2 expandtab fileformat=unix
 
 " Custom Mappings
 let mapleader = ","
 
 " Refresh Config
-nnoremap <leader><leader> :source $MYVIMRC<cr>
+nnoremap <silent><leader><leader> :source $MYVIMRC<cr>
 
 " NERDTree
-nmap <leader>m :NERDTreeToggle<cr>
+nnoremap <silent><leader>m :NERDTreeToggle<cr>
+
+" ALE
+nnoremap <silent><leader>] :ALENext<cr>
+nnoremap <silent><leader>[ :ALEPrevious<cr>
 
 " Buffer Navigation
-nnoremap <leader>q :bd<cr>
-nnoremap <leader>h :bp<cr>
-nnoremap <leader>l :bn<cr>
-nnoremap <leader>gb :ls<cr>:b<Space>
+nnoremap <silent><leader>q :bd<cr>
+nnoremap <silent><leader>h :bp<cr>
+nnoremap <silent><leader>l :bn<cr>
+nnoremap <silent><leader>gb :ls<cr>:b<Space>
 
 " File Finding
-nnoremap <leader>f :FZFSilverSearcher<cr>
+nnoremap <silent><leader>f :FZFSilverSearcher<cr>
 
 " Toggle Highlight Search
-nnoremap <leader>t :set hls!<cr>
-
-" Switch between splits
-nnoremap <C-h> <C-W>h
-nnoremap <C-j> <C-W>j
-nnoremap <C-k> <C-W>k
-nnoremap <C-l> <C-W>l
+nnoremap <silent><leader>t :set hls!<cr>
 
 " System Copy (Visual Mode) and Paste (Normal Mode)
-vnoremap <leader>y "*y<cr>
-nnoremap <leader>p "*p<cr>
+vnoremap <silent><leader>y "*y<cr>
+nnoremap <silent><leader>p "*p<cr>
 
 " Move Vertically by Visual Line
 nnoremap j gj
@@ -147,7 +158,10 @@ nnoremap <Up> gk
 " Custom Functions
 function! s:FZFWithSilverSearcher()
   let command = 'ag --vimgrep --hidden --path-to-ignore ~/.ignore -g ""'
-  let options = '--preview "cat -n {}"'
+
+  " I don't need file preview but it's useful option to know
+  " let options = '--preview "cat -n {}"'
+  let options = ''
 
   call fzf#run({
     \ 'source': command,
@@ -159,5 +173,5 @@ endfunction
 " Custom Commands
 command! ConvertToSingleQuotes %s/\"\([^"]*\)\"/'\1'/g
 command! ConvertToDoubleQuotes %s/\'\([^']*\)\'/"\1"/g
-command! RemoveUnnecessarySpaces %s/\s\+$//g
+command! RemoveTrailingSpaces %s/\s\+$//g
 command! FZFSilverSearcher call s:FZFWithSilverSearcher()
