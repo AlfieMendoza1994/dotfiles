@@ -48,10 +48,11 @@ let g:ale_sign_column_always = 1
 let g:ale_echo_msg_format = '[%linter% - %severity%] %s'
 let g:ale_sign_error = '✘'
 let g:ale_sign_warning = '⚠'
+
 let g:ale_linters = {
-\  'javascript': ['eslint'],
-\  'jsx': ['eslint'],
 \  'ruby': ['rubocop'],
+\  'javascript': [''],
+\  'jsx': [''],
 \ }
 highlight ALEErrorSign ctermfg=9 guifg=#C30500
 highlight ALEWarningSign ctermfg=11 guifg=#FFB316
@@ -62,9 +63,6 @@ let NERDTreeMinimalUI=1
 let NERDTreeChDirMode=2
 let NERDTreeQuitOnOpen=1
 let NERDTreeIgnore=['node_modules']
-if isdirectory(expand(".git"))
-  let g:NERDTreeBookmarksFile = ".git/.nerdtree-bookmarks"
-endif
 
 " VimAirline
 let g:airline#extensions#tabline#enabled = 1
@@ -140,7 +138,7 @@ nnoremap <silent><leader>l :bn<cr>
 nnoremap <silent><leader>gb :ls<cr>:b<Space>
 
 " File Finding
-nnoremap <silent><leader>f :FZFSilverSearcher<cr>
+nnoremap <silent><expr><leader>f (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":FZFSilverSearcher\<cr>"
 
 " Toggle Highlight Search
 nnoremap <silent><leader>t :set hls!<cr>
@@ -157,16 +155,10 @@ nnoremap <Up> gk
 
 " Custom Functions
 function! s:FZFWithSilverSearcher()
-  let command = 'ag --vimgrep --hidden --path-to-ignore ~/.ignore -g ""'
-
-  " I don't need file preview but it's useful option to know
-  " let options = '--preview "cat -n {}"'
-  let options = ''
-
+  " Use ag instead of system find. Fast and respects .gitignore
   call fzf#run({
-    \ 'source': command,
+    \ 'source': 'ag --vimgrep --hidden --path-to-ignore ~/.ignore -g ""',
     \ 'sink': 'e',
-    \ 'options': options,
     \ 'down': '50%' })
 endfunction
 
