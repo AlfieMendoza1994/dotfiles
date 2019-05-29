@@ -24,7 +24,7 @@ set hidden  " Hide files in the background instead of closing them
 set cursorline
 set novisualbell
 set noerrorbells  " Disable beep on errors
-set listchars=tab:▸\ ,nbsp:⋅,trail:•
+set listchars=tab:▸\ ,nbsp:⋅,trail:•  " Alternative characters to show
 set list  " Displays whitespace
 set hlsearch  " Enable search higlighting
 set updatetime=250  " I overrode default (4000) for vim-gitgutter diff markers
@@ -71,11 +71,6 @@ let g:airline_powerline_fonts = 1
 let g:airline_section_c = '%t'
 let g:airline_theme = "cool"
 
-" Ack
-if executable('ag')
-  let g:ackprg = 'ag --vimgrep --hidden --path-to-ignore ~/.ignore'
-endif
-
 " Vim-DevIcons
 let g:WebDevIconsUnicodeDecorateFolderNodes=1
 let g:DevIconsEnableFoldersOpenClose=1
@@ -91,8 +86,8 @@ let g:indentLine_concealcursor=0
 " NERDTree Syntax Highlight
 let g:NERDTreeSyntaxDisableDefaultExtensions = 1
 let g:NERDTreeSyntaxEnabledExtensions = [
-  \'yml', 'rb', 'js', 'coffee', 'erb', 'slim', 'css', 'scss', 'md', 'html',
-  \'sql', 'jpg', 'jpeg', 'png', 'json', 'gif', 'jsx', 'py'
+  \'yml', 'rb', 'js', 'coffee', 'erb', 'slim', 'css', 'scss', 'md',
+  \ 'html', 'sql', 'jpg', 'jpeg', 'png', 'json', 'gif', 'jsx', 'py'
   \]
 
 " Vundle Plugin Manager
@@ -101,19 +96,19 @@ set rtp+=/usr/local/opt/fzf
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
   Plugin 'VundleVim/Vundle.vim'
-  Plugin 'scrooloose/nerdtree'
   Plugin 'airblade/vim-gitgutter'
+  Plugin 'junegunn/fzf'
+  Plugin 'ryanoasis/vim-devicons'
+  Plugin 'scrooloose/nerdtree'
+  Plugin 'sheerun/vim-polyglot'
+  Plugin 'skywind3000/asyncrun.vim'
+  Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
+  Plugin 'tomtom/tcomment_vim'
   Plugin 'tpope/vim-fugitive'
   Plugin 'vim-airline/vim-airline'
   Plugin 'vim-airline/vim-airline-themes'
-  Plugin 'mileszs/ack.vim'
-  Plugin 'sheerun/vim-polyglot'
-  Plugin 'junegunn/fzf'
-  Plugin 'tomtom/tcomment_vim'
-  Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
-  Plugin 'ryanoasis/vim-devicons'
-  Plugin 'Yggdroot/indentLine'
   Plugin 'w0rp/ale'
+  Plugin 'Yggdroot/indentLine'
 call vundle#end()
 
 filetype plugin indent on
@@ -127,9 +122,12 @@ nnoremap <silent><leader><leader> :source $MYVIMRC<cr>
 " NERDTree
 nnoremap <silent><leader>m :NERDTreeToggle<cr>
 
-" ALE
-nnoremap <silent><leader>] :ALENext<cr>
-nnoremap <silent><leader>[ :ALEPrevious<cr>
+" AsyncRun Specs
+nnoremap <silent><leader>ra :Rspec .<cr>
+nnoremap <silent><leader>rc :Rspec %<cr>
+
+" QuickFix Open
+nnoremap <silent><leader>co :copen<cr>
 
 " Buffer Navigation
 nnoremap <silent><leader>q :bd<cr>
@@ -138,6 +136,7 @@ nnoremap <silent><leader>l :bn<cr>
 nnoremap <silent><leader>gb :ls<cr>:b<Space>
 
 " File Finding
+" Make sure fzf doesn't open file in nerdtree buffer
 nnoremap <silent><expr><leader>f (expand('%') =~ 'NERD_tree' ? "\<c-w>\<c-w>" : '').":FZFSilverSearcher\<cr>"
 
 " Toggle Highlight Search
@@ -153,17 +152,31 @@ nnoremap k gk
 nnoremap <Down> gj
 nnoremap <Up> gk
 
-" Custom Functions
+" User Defined Functions
+" Use ag instead of system find. Fast and respects .gitignore
 function! s:FZFWithSilverSearcher()
-  " Use ag instead of system find. Fast and respects .gitignore
-  call fzf#run({
-    \ 'source': 'ag --vimgrep --hidden --path-to-ignore ~/.ignore -g ""',
-    \ 'sink': 'e',
-    \ 'down': '50%' })
+  call fzf#run({ 'source': 'ag --vimgrep --hidden --path-to-ignore ~/.ignore -g ""', 'sink': 'e', 'down': '50%' })
 endfunction
 
-" Custom Commands
+" File search for matching text using ag
+function! s:FileSearch(...)
+  cexpr system('Ag --hidden --path-to-ignore ~/.ignore ' . a:1)
+  copen
+endfunction
+
+" Run RSpec Asynchronously
+function! s:Rspec(...)
+  execute 'AsyncRun rspec ' . a:1
+endfunction
+
+" Used Defined Commands
 command! ConvertToSingleQuotes %s/\"\([^"]*\)\"/'\1'/g
 command! ConvertToDoubleQuotes %s/\'\([^']*\)\'/"\1"/g
 command! RemoveTrailingSpaces %s/\s\+$//g
 command! FZFSilverSearcher call s:FZFWithSilverSearcher()
+command! -nargs=1 FileSearch call s:FileSearch(<f-args>)
+command! -nargs=1 Rspec call s:Rspec(<f-args>)
+
+" Auto Commands
+autocmd FileType qf wincmd L  " Open Quickfix Window to the right
+autocmd VimEnter * let g:airline_section_x = airline#section#create_right(['%{g:asyncrun_status} ', 'filetype'])  " Display status of asyncrun in airline
