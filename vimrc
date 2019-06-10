@@ -125,6 +125,7 @@ nnoremap <silent><leader>m :NERDTreeToggle<cr>
 " AsyncRun Specs
 nnoremap <silent><leader>ra :Rspec .<cr>
 nnoremap <silent><leader>rc :Rspec %<cr>
+nnoremap <silent><leader>rl :exec('Rspec %:' . line('.'))<cr>
 
 " QuickFix Open
 nnoremap <silent><leader>co :copen<cr>
