@@ -30,12 +30,6 @@ set hlsearch  " Enable search higlighting
 set updatetime=250  " I overrode default (4000) for vim-gitgutter diff markers
 set signcolumn=yes  " Displays signcolumn
 set background=dark " Vim will use colors that look good on dark background
-hi Search cterm=NONE gui=NONE ctermbg=darkgreen ctermfg=white guibg=#6666ff guifg=white
-hi CursorLine term=underline cterm=NONE gui=NONE ctermbg=darkyellow guibg=#996300
-
-if (has("nvim"))
-  set termguicolors
-endif
 
 syntax enable  " Enable syntax highlighting
 
@@ -69,7 +63,7 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#buffer_nr_show = 1
 let g:airline_powerline_fonts = 1
 let g:airline_section_c = '%t'
-let g:airline_theme = "cool"
+let g:airline_theme = "understated"
 
 " Vim-DevIcons
 let g:WebDevIconsUnicodeDecorateFolderNodes=1
@@ -97,6 +91,7 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
   Plugin 'VundleVim/Vundle.vim'
   Plugin 'airblade/vim-gitgutter'
+  Plugin 'flazz/vim-colorschemes'
   Plugin 'junegunn/fzf'
   Plugin 'ryanoasis/vim-devicons'
   Plugin 'scrooloose/nerdtree'
@@ -113,6 +108,12 @@ call vundle#end()
 
 filetype plugin indent on
 
+" Set colorscheme after loading plugin
+colorscheme tender
+
+" Set style overrides after colorscheme
+hi Search cterm=NONE gui=NONE ctermbg=lightgreen ctermfg=black guibg=#6666ff guifg=white
+
 " Custom Mappings
 let mapleader = ","
 
@@ -123,9 +124,9 @@ nnoremap <silent><leader><leader> :source $MYVIMRC<cr>
 nnoremap <silent><leader>m :NERDTreeToggle<cr>
 
 " AsyncRun Specs
-nnoremap <silent><leader>ra :Rspec .<cr>
+nnoremap <silent><leader>ra :exec('Rspec ' . getcwd() . '/spec')<cr>
 nnoremap <silent><leader>rc :Rspec %<cr>
-nnoremap <silent><leader>rl :exec('Rspec %:' . line('.'))<cr>
+nnoremap <silent><leader>rl :exec('Rspec %\:' . line('.'))<cr>
 
 " QuickFix Open
 nnoremap <silent><leader>co :copen<cr>
